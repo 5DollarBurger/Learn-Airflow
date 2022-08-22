@@ -2,6 +2,7 @@ alembic==1.8.0
 anyio==3.6.1
 apache-airflow==2.3.3
 apache-airflow-providers-common-sql==1.1.0
+apache-airflow-providers-elasticsearch==4.2.0
 apache-airflow-providers-ftp==3.1.0
 apache-airflow-providers-google==8.0.0
 apache-airflow-providers-http==4.0.0
@@ -33,6 +34,9 @@ Deprecated==1.2.13
 dill==0.3.2
 dnspython==2.2.1
 docutils==0.19
+elasticsearch==7.13.4
+elasticsearch-dbapi==0.2.9
+elasticsearch-dsl==7.4.0
 email-validator==1.2.1
 ez-setup==0.9
 Flask==2.1.2

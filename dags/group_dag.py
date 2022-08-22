@@ -2,23 +2,31 @@ from datetime import datetime
 
 from airflow import DAG
 from airflow.operators.bash import BashOperator
+from airflow.operators.subdag import SubDagOperator
 
-with DAG('group_dag', start_date=datetime(2022, 1, 1), 
-    schedule_interval='@daily', catchup=False) as dag:
- 
-    download_a = BashOperator(
-        task_id='download_a',
-        bash_command='sleep 10'
-    )
- 
-    download_b = BashOperator(
-        task_id='download_b',
-        bash_command='sleep 10'
-    )
- 
-    download_c = BashOperator(
-        task_id='download_c',
-        bash_command='sleep 10'
+from subdags.subdags_downloads import subdag_downloads
+
+with DAG(
+    dag_id='group_dag', 
+    start_date=datetime(2022, 1, 1), 
+    schedule_interval='@daily', 
+    catchup=False
+    ) as dag:
+
+    args = {
+        'start_date': dag.start_date,
+        'schedule_interval': dag.schedule_interval,
+        'catchup': dag.catchup
+    }
+    
+    group_dag_id = 'downloads'
+    downloads = SubDagOperator(
+        task_id=group_dag_id,
+        subdag=subdag_downloads(
+            parent_dag_id=dag.dag_id,
+            child_dag_id=group_dag_id,
+            args=args
+            )
     )
  
     check_files = BashOperator(
@@ -41,4 +49,4 @@ with DAG('group_dag', start_date=datetime(2022, 1, 1),
         bash_command='sleep 10'
     )
  
-    [download_a, download_b, download_c] >> check_files >> [transform_a, transform_b, transform_c]
+    downloads >> check_files >> [transform_a, transform_b, transform_c]

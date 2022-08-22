@@ -3,7 +3,9 @@ from datetime import datetime
 from airflow import DAG
 from airflow.operators.bash import BashOperator
 from airflow.operators.subdag import SubDagOperator
+from airflow.utils.task_group import TaskGroup
 
+from groups.groups_transforms import taskgroup_transforms
 from subdags.subdags_downloads import subdag_downloads
 
 with DAG(
@@ -33,20 +35,10 @@ with DAG(
         task_id='check_files',
         bash_command='sleep 10'
     )
+
+    group_id = 'transforms'
+    transforms = taskgroup_transforms(
+        group_id=group_id
+        )
  
-    transform_a = BashOperator(
-        task_id='transform_a',
-        bash_command='sleep 10'
-    )
- 
-    transform_b = BashOperator(
-        task_id='transform_b',
-        bash_command='sleep 10'
-    )
- 
-    transform_c = BashOperator(
-        task_id='transform_c',
-        bash_command='sleep 10'
-    )
- 
-    downloads >> check_files >> [transform_a, transform_b, transform_c]
+    downloads >> check_files >> transforms
